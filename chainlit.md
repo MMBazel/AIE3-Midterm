@@ -1,8 +1,7 @@
-# PaulGrahamGPT
+# AirBNB 10K
 
-Ever wanted to pick Paul Graham's brain but can't afford his consulting fees?  
-Check out PaulGrahamGPT. 
+How much is the B-Man worth?
 
-![alt text](https://s.turbifycdn.com/aah/paulgraham/bio-19.gif)
+![alt text](https://miro.medium.com/v2/resize:fit:1400/1*lZa_IgPNvVmK6Dwryo0HQg.gif)
 
-This is for Week 4 Day 1 of the AI Makerspace. 
+Thus is the midterm
