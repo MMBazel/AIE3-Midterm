@@ -63,25 +63,14 @@ hf_embeddings = HuggingFaceEndpointEmbeddings(
     huggingfacehub_api_token=HF_TOKEN,
 )
 
-if os.path.exists("./vectorstore"):
-    vectorstore = Qdrant.from_existing_collection(
-        embeddings=hf_embeddings,
-        collection_name="AirBnB_10K",
-        url="http://localhost:6333",
-    )
-    hf_retriever = vectorstore.as_retriever()
-    print("Loaded Vectorstore")
-else:
-    print("Indexing Files")
-    os.makedirs("./vectorstore", exist_ok=True)
-    ### 4. INDEX FILES
-    ### NOTE: REMEMBER TO BATCH THE DOCUMENTS WITH MAXIMUM BATCH SIZE = 32
-    vectorstore = Qdrant.from_documents(
-        split_documents,
-        hf_embeddings,
-        location="./local_qdrant",
-        collection_name="AirBnB_10K",
-    )
+
+vectorstore = Qdrant.from_documents(
+    documents=split_documents,
+    embedding_model=hf_embeddings,
+    location=":memory:",
+    collection_name="AirBnB_10K",
+)
+
 
 hf_retriever = vectorstore.as_retriever()
 
