@@ -12,6 +12,11 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.runnable.config import RunnableConfig
 
+# Mikiko: Adding pdf loader
+from langchain.document_loaders import PyMuPDFLoader
+# Mikiko: Adding import for QDrant
+from langchain_community.vectorstores import Qdrant
+
 # GLOBAL SCOPE - ENTIRE APPLICATION HAS ACCESS TO VALUES SET IN THIS SCOPE #
 # ---- ENV VARIABLES ---- # 
 """
@@ -39,11 +44,16 @@ HF_TOKEN = os.environ["HF_TOKEN"]
 """
 ### 1. CREATE TEXT LOADER AND LOAD DOCUMENTS
 ### NOTE: PAY ATTENTION TO THE PATH THEY ARE IN. 
-document_loader = TextLoader("./data/paul_graham_essays.txt")
+
+# Mikiko: Leveraging PyMUPDFLoader to load PDF - from Assignment 6
+document_loader = PyMuPDFLoader("./data/airbnb10k.pdf").load()
+# document_loader = TextLoader("./data/paul_graham_essays.txt")
 documents = document_loader.load()
 
 ### 2. CREATE TEXT SPLITTER AND SPLIT DOCUMENTS
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=30)
+# text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=30)
+# Mikiko: Changed chunksize to 200 - from Assignment 6
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=30)
 split_documents = text_splitter.split_documents(documents)
 
 ### 3. LOAD HUGGINGFACE EMBEDDINGS
@@ -54,10 +64,10 @@ hf_embeddings = HuggingFaceEndpointEmbeddings(
 )
 
 if os.path.exists("./vectorstore"):
-    vectorstore = FAISS.load_local(
-        "./vectorstore", 
-        hf_embeddings, 
-        allow_dangerous_deserialization=True # this is necessary to load the vectorstore from disk as it's stored as a `.pkl` file.
+    vectorstore = Qdrant.from_existing_collection(
+        embeddings=hf_embeddings,
+        collection_name="AirBnB_10K",
+        url="http://localhost:6333",
     )
     hf_retriever = vectorstore.as_retriever()
     print("Loaded Vectorstore")
@@ -66,12 +76,12 @@ else:
     os.makedirs("./vectorstore", exist_ok=True)
     ### 4. INDEX FILES
     ### NOTE: REMEMBER TO BATCH THE DOCUMENTS WITH MAXIMUM BATCH SIZE = 32
-    for i in range(0, len(split_documents), 32):
-        if i == 0:
-            vectorstore = FAISS.from_documents(split_documents[i:i+32], hf_embeddings)
-            continue
-        vectorstore.add_documents(split_documents[i:i+32])
-    vectorstore.save_local("./vectorstore")
+    vectorstore = Qdrant.from_documents(
+        split_documents,
+        hf_embeddings,
+        location="./local_qdrant",
+        collection_name="AirBnB_10K",
+    )
 
 hf_retriever = vectorstore.as_retriever()
 
