@@ -66,7 +66,7 @@ hf_embeddings = HuggingFaceEndpointEmbeddings(
 
 vectorstore = Qdrant.from_documents(
     documents=split_documents,
-    embedding_model=hf_embeddings,
+    embeddings=hf_embeddings,
     location=":memory:",
     collection_name="AirBnB_10K",
 )
