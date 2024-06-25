@@ -46,9 +46,9 @@ HF_TOKEN = os.environ["HF_TOKEN"]
 ### NOTE: PAY ATTENTION TO THE PATH THEY ARE IN. 
 
 # Mikiko: Leveraging PyMUPDFLoader to load PDF - from Assignment 6
-document_loader = PyMuPDFLoader("./data/airbnb10k.pdf").load()
+documents = PyMuPDFLoader("./data/airbnb10k.pdf").load()
 # document_loader = TextLoader("./data/paul_graham_essays.txt")
-documents = document_loader.load()
+# documents = document_loader.load()
 
 ### 2. CREATE TEXT SPLITTER AND SPLIT DOCUMENTS
 # text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=30)
